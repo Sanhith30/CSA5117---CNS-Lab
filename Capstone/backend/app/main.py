@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import time
 from urllib.parse import urlparse
 
-from app.schemas.predict import PredictRequest, PredictResponse, ExtractRequest, ExtractResponse
+from app.schemas.predict import PredictRequest, PredictResponse, ExtractRequest, ExtractResponse, PredictFeaturesRequest
 from app.services.extractor import extract_features
 from app.services.predictor import predict_url_features, load_prediction_artifacts
 
@@ -109,6 +109,18 @@ def predict(request: PredictRequest):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Prediction error: {str(e)}"
+        )
+
+@app.post("/predict-features", response_model=PredictResponse, status_code=status.HTTP_200_OK)
+def predict_features(request: PredictFeaturesRequest):
+    try:
+        results = predict_url_features(request.features)
+        return results
+    except Exception as e:
+        print(f"Error during feature prediction: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Feature prediction error: {str(e)}"
         )
 
 @app.post("/extract-features", response_model=ExtractResponse, status_code=status.HTTP_200_OK)

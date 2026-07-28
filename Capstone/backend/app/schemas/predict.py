@@ -17,3 +17,6 @@ class ExtractRequest(BaseModel):
 class ExtractResponse(BaseModel):
     url: str
     features: Dict[str, Any] = Field(..., description="Extracted feature names and values")
+
+class PredictFeaturesRequest(BaseModel):
+    features: Dict[str, Any] = Field(..., description="Dictionary containing all 50 features and their values")
