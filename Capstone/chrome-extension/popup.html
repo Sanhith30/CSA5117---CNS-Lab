@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    :root {
+      --bg-primary: #0a0f1d;
+      --bg-secondary: #101628;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --accent: #6366f1;
+      --color-safe: #10b981;
+      --color-suspicious: #f59e0b;
+      --color-phishing: #ef4444;
+    }
+
+    body {
+      width: 320px;
+      margin: 0;
+      padding: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      box-sizing: border-box;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+
+    .logo {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, var(--accent), #ff4d4d);
+      color: white;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+    }
+
+    .title {
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin: 0;
+    }
+
+    .url-container {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      word-break: break-all;
+      margin-bottom: 16px;
+      max-height: 50px;
+      overflow-y: auto;
+    }
+
+    .btn {
+      width: 100%;
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn:hover {
+      background-color: #4f46e5;
+    }
+
+    .btn:disabled {
+      background-color: #334155;
+      color: #64748b;
+      cursor: not-allowed;
+    }
+
+    .result-container {
+      margin-top: 16px;
+      display: none;
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 50px;
+      font-weight: bold;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: white;
+      margin-bottom: 8px;
+    }
+
+    .risk-score {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin: 8px 0;
+    }
+
+    .reasons-list {
+      margin: 12px 0 0 0;
+      padding-left: 16px;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .reasons-list li {
+      margin-bottom: 6px;
+    }
+
+    .status-text {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="logo">Φ</div>
+    <div class="title">PhishShield AI</div>
+  </div>
+
+  <div id="url-box" class="url-container">Detecting URL...</div>
+
+  <button id="scan-btn" class="btn">Scan Tab URL</button>
+
+  <div id="loader" style="display: none; text-align: center; margin-top: 16px; color: var(--text-secondary); font-size: 0.85rem;">
+    Analyzing URL and source code...
+  </div>
+
+  <div id="result-box" class="result-container">
+    <span id="threat-badge" class="badge">Safe</span>
+    <div class="status-text">Risk Score:</div>
+    <div id="threat-score" class="risk-score">0 / 100</div>
+    <div id="confidence-text" class="status-text" style="margin-bottom: 12px;">Confidence: 99.8%</div>
+    
+    <div class="status-text" style="border-top: 1px solid var(--border-color); padding-top: 10px; font-weight: bold;">
+      Suspicious Indicators:
+    </div>
+    <ul id="reasons-list" class="reasons-list">
+      <li>No threats detected.</li>
+    </ul>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

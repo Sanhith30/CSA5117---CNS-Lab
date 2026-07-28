@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "PhishShield AI Scanner",
+  "version": "1.0.0",
+  "description": "Real-time AI-powered phishing detection for browser tabs. Analyzes URLs and page layouts in milliseconds.",
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "storage"
+  ],
+  "host_permissions": [
+    "http://localhost:8000/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Scan Page with PhishShield AI"
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}
