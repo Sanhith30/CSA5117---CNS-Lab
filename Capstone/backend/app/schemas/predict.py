@@ -1,8 +1,9 @@
-from pydantic import BaseModel, HttpUrl, Field
-from typing import List, Dict, Any
+from pydantic import BaseModel, Field
+from typing import List, Dict, Any, Optional
 
 class PredictRequest(BaseModel):
     url: str = Field(..., min_length=1, description="The URL of the website to analyze", example="https://example.com")
+    html: Optional[str] = Field(None, description="Optional raw HTML DOM string passed directly from browser extension")
 
 class PredictResponse(BaseModel):
     prediction: str = Field(..., description="Prediction label: 'Phishing' or 'Legitimate'", example="Phishing")
@@ -13,6 +14,7 @@ class PredictResponse(BaseModel):
 
 class ExtractRequest(BaseModel):
     url: str = Field(..., min_length=1, description="The URL to extract features from")
+    html: Optional[str] = Field(None, description="Optional raw HTML DOM string")
 
 class ExtractResponse(BaseModel):
     url: str

@@ -16,9 +16,9 @@ _preprocessor = None
 _features = None
 _explainer = None
 
-def load_prediction_artifacts():
+def load_prediction_artifacts(force_reload: bool = False):
     global _model, _preprocessor, _features, _explainer
-    if _model is None:
+    if _model is None or force_reload:
         if not os.path.exists(MODEL_PATH):
             raise FileNotFoundError(f"Model file not found at {MODEL_PATH}. Run training script first.")
         _model = joblib.load(MODEL_PATH)

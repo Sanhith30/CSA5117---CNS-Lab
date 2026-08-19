@@ -70,7 +70,7 @@ def get_similarity_index(domain: str, title: str) -> float:
     clean_domain = domain.replace("www.", "").split('.')[0]
     return SequenceMatcher(None, clean_domain.lower(), title.lower()).ratio() * 100
 
-def extract_features(url: str) -> dict:
+def extract_features(url: str, provided_html: str = None) -> dict:
     if not url.startswith(("http://", "https://")):
         url = "https://" + url
 
@@ -116,22 +116,26 @@ def extract_features(url: str) -> dict:
     features['NoOfObfuscatedChar'] = url.count('%')
     features['ObfuscationRatio'] = features['NoOfObfuscatedChar'] / features['URLLength'] if features['URLLength'] > 0 else 0
 
-    # 2. HTML DOM features - Setup defaults in case request fails
+    # 2. HTML DOM features - Use provided_html from client/extension if available
     html_content = ""
     redirects_count = 0
     
-    try:
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
-        }
-        with httpx.Client(headers=headers, follow_redirects=True, timeout=5.0) as client:
-            response = client.get(url)
-            html_content = response.text
-            redirects_count = len(response.history)
-    except Exception as e:
-        print(f"Crawling failed for {url}: {str(e)}")
-        html_content = ""
+    if provided_html and len(provided_html.strip()) > 0:
+        html_content = provided_html
         redirects_count = 0
+    else:
+        try:
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
+            }
+            with httpx.Client(headers=headers, follow_redirects=True, timeout=5.0) as client:
+                response = client.get(url)
+                html_content = response.text
+                redirects_count = len(response.history)
+        except Exception as e:
+            print(f"Crawling failed for {url}: {str(e)}")
+            html_content = ""
+            redirects_count = 0
 
     soup = BeautifulSoup(html_content, "html.parser")
     

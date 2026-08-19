@@ -11,11 +11,11 @@ from app.services.predictor import predict_url_features, load_prediction_artifac
 # Set of top trusted domains to bypass crawl block issues on well-known sites
 TRUSTED_DOMAINS = {
     "google.com", "google.co.in", "gmail.com",
-    "github.com", "wikipedia.org",
+    "github.com", "wikipedia.org", "leetcode.com", "geeksforgeeks.org", "hackerrank.com",
     "microsoft.com", "apple.com", "amazon.com",
     "youtube.com", "facebook.com", "instagram.com", "linkedin.com", "twitter.com", "x.com",
     "netflix.com", "reddit.com", "stackoverflow.com",
-    "python.org", "yahoo.com"
+    "python.org", "yahoo.com", "cloudflare.com"
 }
 
 def get_base_domain(url: str) -> str:
@@ -43,14 +43,30 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Startup event to load artifacts eagerly
 @app.on_event("startup")
 def startup_event():
     try:
-        load_prediction_artifacts()
+        load_prediction_artifacts(force_reload=True)
         print("Model and prediction artifacts loaded successfully!")
     except Exception as e:
         print(f"Error loading models on startup: {str(e)}")
+
+@app.get("/hybridaction/{path:path}", status_code=status.HTTP_200_OK)
+def handle_hybridaction(path: str):
+    return {"status": "ok"}
+
+@app.get("/favicon.ico", status_code=status.HTTP_204_NO_CONTENT)
+def favicon():
+    return None
+
+@app.get("/", status_code=status.HTTP_200_OK)
+def root():
+    return {
+        "message": "Welcome to Intelligent Phishing Website Detection API",
+        "docs_url": "/docs",
+        "health_check": "/health",
+        "status": "running"
+    }
 
 @app.get("/health", status_code=status.HTTP_200_OK)
 def health_check():
@@ -95,8 +111,8 @@ def predict(request: PredictRequest):
                 "reasons": ["Verified trusted global domain."]
             }
             
-        # 1. Extract live features
-        features = extract_features(url)
+        # 1. Extract live features (using client-provided HTML if supplied)
+        features = extract_features(url, provided_html=request.html)
         
         # 2. Run prediction model & explanations
         results = predict_url_features(features)
@@ -130,7 +146,7 @@ def extract(request: ExtractRequest):
         if not url:
             raise HTTPException(status_code=400, detail="URL cannot be empty")
             
-        features = extract_features(url)
+        features = extract_features(url, provided_html=request.html)
         return {
             "url": url,
             "features": features

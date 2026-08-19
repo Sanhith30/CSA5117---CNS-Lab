@@ -30,19 +30,37 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // 2. Scan button click listener
-  scanBtn.addEventListener("click", () => {
+  scanBtn.addEventListener("click", async () => {
     if (!currentTabUrl) return;
 
     scanBtn.disabled = true;
     loader.style.display = "block";
     resultBox.style.display = "none";
 
+    let pageHtml = "";
+
+    // Extract real rendered DOM from active tab to bypass server-side Cloudflare blocks
+    try {
+      const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (activeTab && activeTab.id) {
+        const results = await chrome.scripting.executeScript({
+          target: { tabId: activeTab.id },
+          func: () => document.documentElement.outerHTML
+        });
+        if (results && results[0] && results[0].result) {
+          pageHtml = results[0].result;
+        }
+      }
+    } catch (scriptErr) {
+      console.warn("Could not extract client-side DOM, fallback to backend crawler:", scriptErr);
+    }
+
     fetch(`${BACKEND_URL}/predict`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ url: currentTabUrl })
+      body: JSON.stringify({ url: currentTabUrl, html: pageHtml })
     })
       .then((response) => {
         if (!response.ok) {
